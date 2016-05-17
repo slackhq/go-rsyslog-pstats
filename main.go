@@ -28,7 +28,7 @@ var el = log.New(os.Stderr, "", 0)
 var b = make([]byte, 255) // key name buffer
 
 func printVersion() {
-	fmt.Fprintf(os.Stderr, "go-rsyslog-pstats v%s\n", VERSION)
+	fmt.Fprintf(os.Stderr, "go-rsyslog-pstats %s\n", VERSION)
 }
 
 func printHelp() {

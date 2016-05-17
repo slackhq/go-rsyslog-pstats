@@ -16,4 +16,8 @@ bench-cpu-long:
 	go test -bench=. -benchtime=60s -cpuprofile=cpu.pprof
 	go tool pprof go-rsyslog-pstats.test cpu.pprof
 
-.PHONY: test test-cov-html bench bench-cpu bench-cpu-long
+deb:
+	go build
+	sh deb.sh
+
+.PHONY: test test-cov-html bench bench-cpu bench-cpu-long deb

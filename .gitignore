@@ -1,2 +1,5 @@
 *.iml
+*.deb
+cpu.pprof
+go-rsyslog-pstats.test
 go-rsyslog-pstats
