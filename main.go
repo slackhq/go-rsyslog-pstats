@@ -8,21 +8,24 @@ import (
 	"strings"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"net"
 	"io"
 )
 
-const VERSION = "1.0.0"
+const (
+	VERSION = "1.0.0"
+	CHAR_UNDERSCORE = byte(95)
+	CHAR_UPPER_A = byte(65)
+	CHAR_UPPER_Z = byte(90)
+	CHAR_LOWER_A = byte(97)
+	CHAR_LOWER_Z = byte(122)
+	CHAR_0 = byte(48)
+	CHAR_9 = byte(57)
+	CASE_DELTA = 32 // Length between an uppercase letter and its lowercase counterpart in ascii
+)
 
 var el = log.New(os.Stderr, "", 0)
-
-// Removes any match, runs before any replacing
-var firstRemover = regexp.MustCompile(`\(.+?\)`)
-// Replaces any match with an underscore
-var _Replacer = regexp.MustCompile(`[^a-z0-9_]|_+`)
-// Removes any match, runs after any replacing
-var finalRemover = regexp.MustCompile(`\_$`)
+var b = make([]byte, 255) // key name buffer
 
 func printVersion() {
 	fmt.Fprintf(os.Stderr, "go-rsyslog-pstats v%s\n", VERSION)
@@ -74,10 +77,39 @@ func main() {
 
 // Use the global regex's to get the stat name ie key in working order
 func sanitizeKey(s string) string {
-	b := []byte(strings.ToLower(s))
-	b = firstRemover.ReplaceAll(b, []byte(""))
-	b = _Replacer.ReplaceAll(b, []byte("_"))
-	return string(finalRemover.ReplaceAll(b, []byte("")))
+	pos := 0
+	last := CHAR_UNDERSCORE
+
+	for _, r := range s {
+		c := byte(r)
+
+		// Only allow alpha numberic
+		if c < CHAR_0 || (c > CHAR_9 && c < CHAR_UPPER_A) || (c > CHAR_UPPER_Z && c < CHAR_LOWER_A) || c > CHAR_LOWER_Z {
+			// Don't have more than 1 underscore in a row
+			if last == CHAR_UNDERSCORE {
+				continue
+			}
+
+			c = CHAR_UNDERSCORE
+		}
+
+		// lower case any upper case characters
+		if c >= CHAR_UPPER_A && c <= CHAR_UPPER_Z {
+			c = byte(c + CASE_DELTA)
+		}
+
+		// Put the byte in the array
+		b[pos] = c
+		last = b[pos]
+		pos++
+	}
+
+	// Remove a trailing underscore
+	if b[pos - 1] == CHAR_UNDERSCORE {
+		pos--
+	}
+
+	return string(b[:pos])
 }
 
 // Take the entire json blob and find any key/value pairs whos value is number and formulate a stat entry

@@ -28,6 +28,7 @@ func Test_parseLine(t *testing.T) {
 	assert.Len(t, lines, 1)
 	assert.Contains(t, lines, "rsyslog.dynstats.thing_one:100|g")
 
+
 	// Make sure we remove extraneous dots
 	res.Reset()
 	parseLine("May 16 20:51:58 hostname rsyslogd-pstats: {\"name\":\"imuxsock\",\"origin\":\"imuxsock\",\"submitted\":8,\"ratelimit.discarded\":0,\"ratelimit.numratelimiters\":0}", res)
@@ -42,9 +43,9 @@ func Test_parseLine(t *testing.T) {
 	parseLine("May 16 20:51:58 hostname rsyslo { \"name\": \"weird_input(*//var/run/sock/IPv4)\", \"origin\": \"imptcp\", \"submitted\": 1000234982, \"bytes.received\": 0, \"bytes.decompressed\": 0 }", res)
 	lines = strings.Split(strings.Trim(res.String(), "\n"), "\n")
 	assert.Len(t, lines, 3)
-	assert.Contains(t, lines, "rsyslog.imptcp.weird_input.submitted:1000234982|g")
-	assert.Contains(t, lines, "rsyslog.imptcp.weird_input.bytes_received:0|g")
-	assert.Contains(t, lines, "rsyslog.imptcp.weird_input.bytes_decompressed:0|g")
+	assert.Contains(t, lines, "rsyslog.imptcp.weird_input_var_run_sock_ipv4.submitted:1000234982|g")
+	assert.Contains(t, lines, "rsyslog.imptcp.weird_input_var_run_sock_ipv4.bytes_received:0|g")
+	assert.Contains(t, lines, "rsyslog.imptcp.weird_input_var_run_sock_ipv4.bytes_decompressed:0|g")
 
 	// For good measure
 	res.Reset()
