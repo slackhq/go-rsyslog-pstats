@@ -1,10 +1,10 @@
 package main
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"bytes"
+	"github.com/stretchr/testify/assert"
 	"strings"
+	"testing"
 )
 
 func Test_parseLine(t *testing.T) {
@@ -27,7 +27,6 @@ func Test_parseLine(t *testing.T) {
 	lines = strings.Split(strings.Trim(res.String(), "\n"), "\n")
 	assert.Len(t, lines, 1)
 	assert.Contains(t, lines, "rsyslog.dynstats.thing_one:100|g")
-
 
 	// Make sure we remove extraneous dots
 	res.Reset()

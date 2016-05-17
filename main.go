@@ -1,27 +1,27 @@
 package main
 
 import (
-	"os"
-	"flag"
-	"log"
 	"bufio"
-	"strings"
 	"encoding/json"
+	"flag"
 	"fmt"
-	"net"
 	"io"
+	"log"
+	"net"
+	"os"
+	"strings"
 )
 
 const (
-	VERSION = "1.0.0"
+	VERSION         = "1.0.0"
 	CHAR_UNDERSCORE = byte(95)
-	CHAR_UPPER_A = byte(65)
-	CHAR_UPPER_Z = byte(90)
-	CHAR_LOWER_A = byte(97)
-	CHAR_LOWER_Z = byte(122)
-	CHAR_0 = byte(48)
-	CHAR_9 = byte(57)
-	CASE_DELTA = 32 // Length between an uppercase letter and its lowercase counterpart in ascii
+	CHAR_UPPER_A    = byte(65)
+	CHAR_UPPER_Z    = byte(90)
+	CHAR_LOWER_A    = byte(97)
+	CHAR_LOWER_Z    = byte(122)
+	CHAR_0          = byte(48)
+	CHAR_9          = byte(57)
+	CASE_DELTA      = 32 // Length between an uppercase letter and its lowercase counterpart in ascii
 )
 
 var el = log.New(os.Stderr, "", 0)
@@ -37,7 +37,7 @@ func printHelp() {
 	flag.PrintDefaults()
 }
 
-func parseConfig () (port string) {
+func parseConfig() (port string) {
 	flag.Usage = printHelp
 	outPort := flag.String("port", "8215", "Statsite udp port to connect to")
 	printV := flag.Bool("version", false, "Prints the version string")
@@ -56,7 +56,7 @@ func main() {
 
 	in := bufio.NewReader(os.Stdin)
 
-	udpAddr, err := net.ResolveUDPAddr("udp", "localhost:" + outPort)
+	udpAddr, err := net.ResolveUDPAddr("udp", "localhost:"+outPort)
 	if err != nil {
 		el.Fatal("Could not resolve address", err)
 	}
@@ -105,7 +105,7 @@ func sanitizeKey(s string) string {
 	}
 
 	// Remove a trailing underscore
-	if b[pos - 1] == CHAR_UNDERSCORE {
+	if b[pos-1] == CHAR_UNDERSCORE {
 		pos--
 	}
 
