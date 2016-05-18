@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -9,7 +10,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"bytes"
 )
 
 const (
@@ -32,14 +32,14 @@ func printVersion() {
 }
 
 func printHelp() {
-	printVersion()
+	fmt.Fprintln(os.Stderr, "go-rsyslog-pstats --port number\n")
 	fmt.Fprintf(os.Stderr, "Parses and forwards rsyslog process stats to a local statsite or statsd process\n\n")
 	flag.PrintDefaults()
 }
 
 func parseConfig() (port string) {
 	flag.Usage = printHelp
-	outPort := flag.String("port", "8215", "Statsite udp port to connect to")
+	outPort := flag.String("port", "", "Statsite udp port to connect to")
 	printV := flag.Bool("version", false, "Prints the version string")
 	flag.Parse()
 
@@ -55,6 +55,12 @@ func main() {
 	outPort := parseConfig()
 
 	in := bufio.NewReader(os.Stdin)
+
+	if outPort == "" {
+		el.Println("No port was provided\n")
+		printHelp()
+		os.Exit(1)
+	}
 
 	udpAddr, err := net.ResolveUDPAddr("udp", "localhost:"+outPort)
 	if err != nil {
@@ -84,7 +90,7 @@ func sanitizeKey(s string) string {
 	for _, r := range s {
 		c := byte(r)
 
-		// Only allow alpha numberic
+		// Only allow alpha numeric
 		if c < CHAR_0 || (c > CHAR_9 && c < CHAR_UPPER_A) || (c > CHAR_UPPER_Z && c < CHAR_LOWER_A) || c > CHAR_LOWER_Z {
 			// Don't have more than 1 underscore in a row
 			if last == CHAR_UNDERSCORE {
@@ -113,7 +119,7 @@ func sanitizeKey(s string) string {
 	return string(b[:pos])
 }
 
-// Take the entire json blob and find any key/value pairs whos value is number and formulate a stat entry
+// Take the entire json blob and find any key/value pairs whose value is number and formulate a stat entry
 func findNums(prefix string, kvs map[string]interface{}, out io.Writer) {
 	for k, v := range kvs {
 		vf, ok := v.(float64)
