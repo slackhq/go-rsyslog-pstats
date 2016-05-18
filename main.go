@@ -9,7 +9,7 @@ import (
 	"log"
 	"net"
 	"os"
-	"strings"
+	"bytes"
 )
 
 const (
@@ -66,12 +66,13 @@ func main() {
 		el.Fatal("Could not dial address", err)
 	}
 
+	lb := make([]byte, 0, 1024)
 	for {
-		line, err := in.ReadString('\n')
+		lb, err = in.ReadBytes('\n')
 		if err != nil {
 			el.Fatalln("Failed to read line from input", err)
 		}
-		parseLine(line, out)
+		parseMsg(lb, out)
 	}
 }
 
@@ -128,39 +129,31 @@ func findNums(prefix string, kvs map[string]interface{}, out io.Writer) {
 }
 
 // Format all the stats in the line
-func parseLine(line string, out io.Writer) {
+func parseMsg(msg []byte, out io.Writer) {
 	var name string
 	var ok bool
 
-	jsonStart := strings.IndexByte(line, '{')
+	jsonStart := bytes.Index(msg, []byte("{"))
 	if jsonStart < 0 {
 		return
 	}
 
 	var values map[string]interface{}
-	if err := json.Unmarshal([]byte(line[jsonStart:]), &values); err != nil {
+	if err := json.Unmarshal(msg[jsonStart:], &values); err != nil {
 		el.Println("Error while decoding json line", err)
 		return
 	}
 
 	if _, ok = values["origin"]; !ok {
-		el.Println("No origin key in the json blob", line)
-		return
-	}
-
-	name, ok = values["name"].(string)
-	if !ok {
-		el.Println("No name key in the json blob", line)
+		el.Println("No origin key in the json blob", string(msg))
 		return
 	}
 
 	origin, ok := values["origin"].(string)
 	if !ok {
-		el.Println("No origin key in the json blob", line)
+		el.Println("No origin key in the json blob", string(msg))
 		return
 	}
-
-	name = sanitizeKey(origin) + "." + sanitizeKey(name)
 
 	switch origin {
 	case "dynstats":
@@ -170,6 +163,13 @@ func parseLine(line string, out io.Writer) {
 	case "impstats":
 		findNums("resource_usage", values, out)
 	default:
+		name, ok = values["name"].(string)
+		if !ok {
+			el.Println("No name key in the json blob", string(msg))
+			return
+		}
+
+		name = sanitizeKey(origin) + "." + sanitizeKey(name)
 		findNums(name, values, out)
 	}
 }
