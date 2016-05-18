@@ -14,15 +14,9 @@ and restart `rsyslog`
 
     module(load="omprog")
     ruleset(name="pstats"){
-        action(type="omprog" binary="/path/to/go-rsyslog-pstats")
+        action(type="omprog" binary="/path/to/go-rsyslog-pstats --port 8125")
     }
     module(load="impstats" interval="10" severity="7" format="json" ruleset="pstats")
-
-By default `go-rsyslog-pstats` will send the parsed stats to `127.0.0.1:8125`.
-
-You can change the destination port with the `-port` option
-
-    action(type="omprog" binary="/path/to/go-rsyslog-pstats -port 10101")
 
 ## Output
 
