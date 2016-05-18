@@ -1,3 +1,6 @@
+bin:
+	go build
+
 test:
 	go test -v
 
@@ -9,15 +12,15 @@ bench:
 	go test -bench=.
 
 bench-cpu:
-	go test -bench=. -benchtime=5s -cpuprofile=cpu.pprof
+	go test -bench=. -cpuprofile=cpu.pprof
 	go tool pprof go-rsyslog-pstats.test cpu.pprof
 
 bench-cpu-long:
 	go test -bench=. -benchtime=60s -cpuprofile=cpu.pprof
 	go tool pprof go-rsyslog-pstats.test cpu.pprof
 
-deb:
-	go build
+deb: bin
 	sh deb.sh
 
-.PHONY: test test-cov-html bench bench-cpu bench-cpu-long deb
+.PHONY: test test-cov-html bench bench-cpu bench-cpu-long deb bin
+.DEFAULT_GOAL := bin
