@@ -1,5 +1,8 @@
 ## `go-rsyslog-pstats`
 
+[![License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](http://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/travis/slackhq/go-rsyslog-pstats.svg?style=flat-square)](https://travis-ci.org/slackhq/go-rsyslog-pstats)
+
 Parses and forwards [rsyslog process stats](http://www.rsyslog.com/doc/master/configuration/modules/impstats.html)
 to a local [statsite](https://github.com/armon/statsite), [statsd](https://github.com/etsy/statsd), or wire
 protocol compatible service
